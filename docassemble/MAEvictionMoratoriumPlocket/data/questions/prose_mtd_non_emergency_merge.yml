@@ -26,7 +26,7 @@ code: |
 mandatory: True
 id: interview order
 code: |
-  # codefendants.gather()
+  codefendants.gather()
   # interview_presets
   # download_only_intro_screen
   # mtd_intro
@@ -253,8 +253,8 @@ id: get codefendant info
 code: |
   codefendants[i].name.first
   codefendants[i].send_method
-  #codefendants[i].signature
-  #codefendants[i].signature_date
+  codefendants[i].signature
+  codefendants[i].signature_date
   codefendants[i].complete = True
 ---
 id: placeholder
