@@ -26,7 +26,6 @@ code: |
 mandatory: True
 id: interview order
 code: |
-  codefendants.gather()
   # interview_presets
   # download_only_intro_screen
   # mtd_intro
@@ -34,9 +33,12 @@ code: |
   #   kick_out
   # other_parties.target_number
   # other_parties.gather()
+  users[0].name.first
   #users[0].address.address
-  users[0].mobile_number
-  #users.gather()
+  #users[0].mobile_number
+  users.gathered = True
+  users.there_is_another = False
+  codefendants.gather()
   #courts[0]
   preview_screen
   multiuser
@@ -107,7 +109,8 @@ fields:
   - no label: other_parties.target_number
     datatype: integer
     min: 1
----  
+---
+id: plaintiff names
 question: |
   % if other_parties.target_number == 1:
     What is the plaintiff's name?
@@ -234,6 +237,7 @@ fields:
   - Suffix: codefendants[i].name.suffix
     required: False
 ---
+id: how to send to codefendant
 question: |
   Do you want to send this to them by email or text?
 fields:

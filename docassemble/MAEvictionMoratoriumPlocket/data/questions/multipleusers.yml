@@ -10,7 +10,7 @@ modules:
 ---
 objects:
   - users[0]: Person
-  - codefendants: DAList.using(object_type=Individual, there_are_any=True, complete_attribute='complete')
+  - codefendants: PeopleList.using(object_type=Individual, there_are_any=True, complete_attribute='complete')
   - signatories: DADict.using(auto_gather=False)
 ---
 mandatory: True
@@ -59,43 +59,7 @@ code: |
   process_action()
   force_ask('unauthorized')
 ---
-comment: |
-  question: |
-    What is the name and e-mail address
-    % if i == 0:
-    of a
-    % else:
-    of the ${ ordinal(i) }
-    % endif
-    codefendant who can attest that you like the fruit?
-  fields:
-    #- Name: codefendants[i].name.text
-    - Do you want to email or text: codefendants[i].send_method
-      choices:
-        - codefendant email: email
-        - codefendant text: text
-    - Email: codefendants[i].email 
-      js show if: |
-        val("codefendants[i].send_method") == "email"
-    - Mobile number: codefendants[i].phone_number
-      js show if: |
-        val("codefendants[i].send_method") == "text"
----
-comment: |
-  question: |
-    Besides ${ codefendants }, can anyone
-    else attest that you like the fruit?
-  yesno: codefendants.there_is_another
----
-comment: |
-  code: |
-    codefendants[i].name.text
-    codefendants[i].signed
-    codefendants[i].signature
-    codefendants[i].signature_date
-    codefendants[i].complete = True
----
-generic object: Person
+generic object: Individual
 code: |
   import random
   import string
