@@ -8,20 +8,14 @@ metadata:
 modules:  
   - docassemble.VirtualCourtToolbox.shortenURL
 ---
-objects:
-  - users[0]: Person
-  - codefendants: PeopleList.using(object_type=Individual, there_are_any=True, complete_attribute='complete')
-  - signatories: DADict.using(auto_gather=False)
----
 mandatory: True
 code: |
   multi_user = True
 ---
 code: |
-  #codefendants.gather()
   emails_sent
   told_to_wait
-  multiuser = True
+  send_for_codefendant_signatures = True
 ---
 code: |
   told_to_wait = True
@@ -32,9 +26,6 @@ code: |
   signatories.gather()
   background_action('send_out_for_signature')
   emails_sent = True
----
-code: |
-  y = shortenMe(codefendants[i].sign_url)
 ---
 code: |
   send_sms(task='send signature link', to=users[0].mobile_number,template=codefendants[i].sms_template)
@@ -48,6 +39,7 @@ code: |
     send_email(to=codefendants, template=codefendants[i].email_template)
     codefendants[i].notified = True
 ---
+id: sms template multiuser
 template: codefendants[i].sms_template
 content: |
   Dear ${ codefendants[i] },
@@ -59,25 +51,34 @@ code: |
   process_action()
   force_ask('unauthorized')
 ---
+id: set code for individual
 generic object: Individual
 code: |
   import random
   import string
   x.code = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
 ---
+id: set user code
 code: |
   import random
   import string
   users[0].code = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
 ---
+id: codefendant signature url
 code: |
   codefendants[i].sign_url = interview_url_action('request_signature', code=codefendants[i].code)
 ---
+id: shorten codefendant url
+code: |
+  y = shortenMe(codefendants[i].sign_url)
+---
+id: set signatories
 code: |
   for codefendant in codefendants:
     signatories[codefendant.code] = codefendant
   signatories.gathered = True
 ---
+id: send request for signatures
 event: send_out_for_signature
 code: |
   for codefendant in codefendants:
@@ -86,10 +87,12 @@ code: |
   placeholder_to_send_for_signature = True
   background_response()
 ---
+id: send user email
 code: |
   send_email(to=users[0], template=initial_email_template)
   users[0].notified = True
 ---
+id: user email
 template: initial_email_template
 subject: |
   Your Eviction Moratorium is out for signature.
@@ -104,34 +107,37 @@ content: |
   % else:
   I have e-mailed your codefendants to request that they sign the Eviction Moratorium.
 
-  W will e-mail you when all the codefendants have signed.  You can [check the status] of your document to see who still has not signed.
+  We will e-mail you when all the codefendants have signed.  You can [check the status] of your document to see who still has not signed.
   % endif
 
   [Check the status of the signatures]: ${ interview_url_action('status_page', code=users[0].code) }
 ---
+id: codefendant email
 template: codefendants[i].email_template
 subject: |
-  Your signature needed on
-  a document for ${ users[0] }
+  Your signature needed on a document for ${ users[0] }
 content: |
   Dear ${ codefendants[i] },
 
-  You are requested to codefendant a sworn statement attesting that ${ users[0] } likes that fruit.
+  You are requested to codefendant a sworn statement attesting that ${ users[0] } TODO: WHAT ARE THEY ATTESTING.
 
-  Please [click here] to view the document you are being asked to sign.
+  Please [tap here] to view the document you are being asked to sign.
 
-  [click here]: ${ codefendants[i].sign_url }
+  [Tap here to sign]: ${ codefendants[i].sign_url }
 ---
+id: 404
 event: unauthorized
 code: |
   response('Page not found', response_code=404)
 ---
+id: not sure
 event: status_page
 code: |
   if action_argument('code') != users[0].code:
     force_ask('unauthorized')
   force_ask('users[0].status')
 ---
+id: signatories flow
 event: request_signature
 code: |
   if action_argument('code') not in signatories:
@@ -174,15 +180,17 @@ code: |
 # ---
 # id: basic questions intro screen
 ---
+id: codefendant willing to sign
 reconsider: form_to_send
 question: |
-  Are you willing to sign a statement attesting that ${ users[0] } likes that fruit?
+  Are you willing to sign a statement attesting that ${ users[0] } TODO: WHAT ARE THEY ATTESTING?
 subquestion: |
   You can [preview the statement](${ form_to_send.pdf.url_for() }) now.
 
   If you are willing to sign, press Continue.  On the next screen, you will provide your signature.
 continue button field: codefendants[i].willing_to_sign
 ---
+id: Codefendant signature
 generic object: Person
 question: |
   Sign your name
@@ -190,6 +198,7 @@ signature: x.signature
 under: |
   ${ x }
 ---
+id: if all signed send email
 code: |
   for codef in codefendants:
     if not codef.signed:
@@ -208,15 +217,16 @@ code: |
   send_email(to=users[0], template=final_email_template, attachments=form_to_send)
   background_response()
 ---
+id: all signed email template
 template: final_email_template
 subject: Your Eviction Moratorium has been signed by all parties
 content: |
   ${ users[0] },
 
-  Your Eviction Moratorium has now been signed by all of your codefendants. Please see attached.
+  Your Eviction Moratorium has now been signed by all of your codefendants. Please see the attached document.
 ---
-code: |
-  users[0].signature_date = today()
+#code: |
+#  users[0].signature_date = today()
 ---
 only sets: codefendants[i].signature_obtained
 code: |
@@ -233,6 +243,7 @@ code: |
 code: |
   codefendants[i].signature = "____________________________"
 ---
+id: signature status
 event: users[0].status
 reconsider:
   - all_signatures_in
@@ -257,6 +268,7 @@ subquestion: |
   % endif
 attachment code: form_to_send
 ---
+id: thank codefendants
 event: codefendants[i].thanked
 reconsider:
   - all_signatures_in
@@ -264,7 +276,7 @@ reconsider:
 question: |
   Thank you for signing ${ users[0].possessive('Eviction Moratorium') }
 subquestion: |
-  If you would like a signed copy for your records, you may download it below.
+  If you would like a signed copy for your records, you can download it below.
 
   % if not all_signatures_in:
   Please note that not everyone has signed the document yet.
