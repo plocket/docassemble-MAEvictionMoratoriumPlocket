@@ -181,11 +181,11 @@ code: |
 # id: basic questions intro screen
 ---
 id: codefendant willing to sign
-reconsider: form_to_send
+reconsider: motion_to_dismiss_for_non_essential_eviction
 question: |
   Are you willing to sign a statement attesting that ${ users[0] } TODO: WHAT ARE THEY ATTESTING?
 subquestion: |
-  You can [preview the statement](${ form_to_send.pdf.url_for() }) now.
+  You can [preview the statement](${ motion_to_dismiss_for_non_essential_eviction.pdf.url_for() }) now.
 
   If you are willing to sign, press Continue.  On the next screen, you will provide your signature.
 continue button field: codefendants[i].willing_to_sign
@@ -214,7 +214,7 @@ code: |
 ---
 event: send_final_email
 code: |
-  send_email(to=users[0], template=final_email_template, attachments=form_to_send)
+  send_email(to=users[0], template=final_email_template, attachments=motion_to_dismiss_for_non_essential_eviction)
   background_response()
 ---
 id: all signed email template
@@ -247,7 +247,7 @@ id: signature status
 event: users[0].status
 reconsider:
   - all_signatures_in
-  - form_to_send
+  - motion_to_dismiss_for_non_essential_eviction
 question: |
   % if all_signatures_in:
   Your Eviction Moratorium has been signed.
@@ -266,13 +266,13 @@ subquestion: |
       % endif
     % endfor
   % endif
-attachment code: form_to_send
+attachment code: motion_to_dismiss_for_non_essential_eviction
 ---
 id: thank codefendants
 event: codefendants[i].thanked
 reconsider:
   - all_signatures_in
-  - form_to_send
+  - motion_to_dismiss_for_non_essential_eviction
 question: |
   Thank you for signing ${ users[0].possessive('Eviction Moratorium') }
 subquestion: |
@@ -281,4 +281,4 @@ subquestion: |
   % if not all_signatures_in:
   Please note that not everyone has signed the document yet.
   % endif
-attachment code: form_to_send
+attachment code: motion_to_dismiss_for_non_essential_eviction

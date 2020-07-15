@@ -387,14 +387,15 @@ subquestion: |
   
   Use the "Back" button to find the screen to fix mistakes.
   
-  ${form_to_sign }
+  ${ form_to_sign }
 continue button field: preview_screen
 ---
 code: |
   form_to_sign = pdf_concatenate(preview_doc, filename="preview.pdf")
 ---
-code: |
-  form_to_send = form_to_sign
+#code: |
+#  form_to_send = DAFileCollection()
+#  form_to_send.append( form_to_sign )
 ---
 attachment:
   docx template file: motion_to_dismiss_for_non-essential_eviction.docx
