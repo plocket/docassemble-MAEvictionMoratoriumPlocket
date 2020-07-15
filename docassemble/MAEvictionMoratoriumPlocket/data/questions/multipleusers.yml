@@ -265,6 +265,12 @@ subquestion: |
 
       % endif
     % endfor
+  % else:
+    % if len( codefendants ) > 1:
+    ${ comma_and_list( codefendants )} have signed.
+    % else:
+      ${ codefendants[0] } has signed.
+    % endif
   % endif
 attachment code: motion_to_dismiss_for_non_essential_eviction
 ---
