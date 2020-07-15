@@ -42,15 +42,18 @@ code: |
   codefendants.gather()
   #courts[0]
   preview_screen
+  basic_questions_signature_flow
   send_for_codefendant_signatures
   #(no longer needed?) update_signature_fields
-  #basic_questions_signature_flow
   #if not service_method == "not_know":
   #  service_date
   #download
 ---
 code: |
   download_titles = ['dismiss-non-essential-eviction.pdf']
+---
+code: |
+  all_signers = users + codefendants
 ---
 comment: |
   code: |
@@ -342,7 +345,7 @@ fields:
   - I do not know the docket number: dont_know_docket_number
     datatype: yesno
   - Docket number: docket_numbers[0]
-    hide if:  dont_know_docket_number
+    hide if: dont_know_docket_number
 help:
   label: |
     What is a docket number?
@@ -392,10 +395,6 @@ continue button field: preview_screen
 ---
 code: |
   form_to_sign = pdf_concatenate(preview_doc, filename="preview.pdf")
----
-#code: |
-#  form_to_send = DAFileCollection()
-#  form_to_send.append( form_to_sign )
 ---
 attachment:
   docx template file: motion_to_dismiss_for_non-essential_eviction.docx
